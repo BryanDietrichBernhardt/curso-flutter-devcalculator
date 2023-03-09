@@ -17,6 +17,8 @@ class _MyAppState extends State<MyApp> {
   String um = '';
   String um2 = '';
   String firstNumber = '';
+  String aux = '';
+  double TitleFontSize = 54.0;
 
   void calculate(String value) {
     switch (value) {
@@ -31,6 +33,12 @@ class _MyAppState extends State<MyApp> {
       case '9':
       case '0':
       case '.':
+        if (calc.length >= 12) {
+          setState(() {
+            TitleFontSize = 32;
+          });
+          return;
+        }
         setState(() {
           if (calc == '0') calc = '';
         });
@@ -68,7 +76,7 @@ class _MyAppState extends State<MyApp> {
             // double numberDouble = double.parse(calc);
             // calc = numberDouble.toString();
           } else {
-            int numberInteger = int.parse(calc);
+            BigInt numberInteger = BigInt.parse(calc);
             if (firstNumber == '') {
               calc = numberInteger.toString() + um;
             } else {
@@ -333,15 +341,27 @@ class _MyAppState extends State<MyApp> {
         String resultString = result.toString();
         List<String> resultParts = resultString.split('.');
 
-        if (int.parse(resultParts[1]) * 1 == 0) {
+        BigInt parsed = BigInt.zero;
+        try {
+          parsed = BigInt.parse(resultParts[1]);
+        } catch (e) {
+          print(resultParts[1]);
+          int e = resultParts[1].indexOf('e');
+          resultParts[1] = resultParts[1].substring(0, e);
+          parsed = BigInt.parse(resultParts[1]);
+        }
+
+        if (parsed * BigInt.one == BigInt.zero) {
           setState(() {
             if (um != '') {
-              calc = int.parse(resultParts[0]).toString() + um;
+              calc = BigInt.parse(resultParts[0]).toString() + um;
+              aux = um;
               um = '';
               um2 = '';
               firstNumber = '';
             } else {
-              calc = int.parse(resultParts[0]).toString() + um2;
+              calc = BigInt.parse(resultParts[0]).toString() + um2;
+              aux = um2;
               um = '';
               um2 = '';
               firstNumber = '';
@@ -350,10 +370,14 @@ class _MyAppState extends State<MyApp> {
         } else {
           setState(() {
             calc = result.toString() + um;
+            aux = um;
             um = '';
             um2 = '';
             firstNumber = '';
           });
+        }
+        if (calc.length >= 20) {
+          TitleFontSize = 24;
         }
         break;
       case 'REM':
@@ -378,6 +402,8 @@ class _MyAppState extends State<MyApp> {
           calc = '0';
           um = '';
           firstNumber = '';
+          aux = '';
+          TitleFontSize = 54.0;
         });
         break;
       case '<':
@@ -428,10 +454,10 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
-        appBar: AppBar(
-          elevation: 0,
-          title: const Center(child: Text("DevCalculator")),
-        ),
+        // appBar: AppBar(
+        //   elevation: 0,
+        //   title: const Center(child: Text("DevCalculator")),
+        // ),
         body: Column(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
@@ -439,9 +465,21 @@ class _MyAppState extends State<MyApp> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 Text(
-                  calc,
-                  style: const TextStyle(
-                    fontSize: 54,
+                  aux,
+                )
+              ],
+            ),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    calc,
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                    textAlign: TextAlign.right,
+                    style: TextStyle(
+                      fontSize: TitleFontSize,
+                    ),
                   ),
                 ),
               ],
@@ -466,11 +504,9 @@ class _MyAppState extends State<MyApp> {
                   onTap: () {
                     calculate('<');
                   },
-                  child: const Text(
-                    "<",
-                    style: TextStyle(
-                      fontSize: 42,
-                    ),
+                  child: const Icon(
+                    Icons.backspace,
+                    size: 36,
                   ),
                 ),
               ],
@@ -553,7 +589,7 @@ class _MyAppState extends State<MyApp> {
                     calculate("X");
                   },
                   child: const Text(
-                    "X",
+                    "x",
                     style: TextStyle(
                       fontSize: 42,
                     ),
