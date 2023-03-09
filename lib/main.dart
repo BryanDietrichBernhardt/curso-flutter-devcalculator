@@ -55,9 +55,11 @@ class _MyAppState extends State<MyApp> {
             um = "IN";
           }
 
-          if (um != '') {
-            // firstNumber = calc.replaceAll(um, "");
+          if (um != '' && firstNumber == '') {
             calc = calc.replaceAll(um, "");
+          }
+          if (um2 != '' && firstNumber != '') {
+            calc = calc.replaceAll(um2, "");
           }
 
           calc += value;
@@ -376,6 +378,44 @@ class _MyAppState extends State<MyApp> {
           calc = '0';
           um = '';
           firstNumber = '';
+        });
+        break;
+      case '<':
+        if (calc.contains(RegExp(r'[A-Z]')) && firstNumber == '') {
+          if (calc.contains("REM")) {
+            um = "REM";
+          } else if (calc.contains("PX")) {
+            um = "PX";
+          } else if (calc.contains("PT")) {
+            um = "PT";
+          } else if (calc.contains("IN")) {
+            um = "IN";
+          }
+          if (calc != '' && calc != um) {
+            calc = calc.replaceAll(um, "");
+            calc = calc.substring(0, calc.length - 1) + um;
+          }
+        } else if (calc.contains(RegExp(r'[A-Z]'))) {
+          if (calc.contains("REM")) {
+            um2 = "REM";
+          } else if (calc.contains("PX")) {
+            um2 = "PX";
+          } else if (calc.contains("PT")) {
+            um2 = "PT";
+          } else if (calc.contains("IN")) {
+            um2 = "IN";
+          }
+          if (calc != '' && calc != um2) {
+            calc = calc.replaceAll(um2, "");
+            calc = calc.substring(0, calc.length - 1) + um2;
+          }
+        } else {
+          if (calc != '' && !calc.contains(RegExp(r'[A-Z]'))) {
+            calc = calc.substring(0, calc.length - 1);
+          }
+        }
+        setState(() {
+          calc;
         });
         break;
       default:
